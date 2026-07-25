@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>Playlist Prompt</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<style>
+@font-face{
+  font-family: 'Junicode';
+  src: url('assets/Junicode-Bold.ttf') format('truetype');
+  font-weight: 700;
+  font-display: swap;
+}
+
+*{
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
+}
+
+html, body{
+  height: 100%;
+  margin: 0;
+}
+
+body{
+  background: #362a72;
+  min-height: 100dvh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'IBM Plex Mono', monospace;
+  overflow: hidden;
+}
+
+.canvas{
+  position: relative;
+  width: min(100vw, calc(100dvh * 780 / 1688));
+  aspect-ratio: 780 / 1688;
+  background-image: url('assets/bg.png');
+  background-size: cover;
+  background-position: center;
+  overflow: hidden;
+  container-type: inline-size;
+}
+
+/* ---------- Title graphics ---------- */
+.playlist-img{
+  position: absolute;
+  left: 22.5%;
+  top: 14%;
+  width: 41%;
+  height: auto;
+}
+
+.prompt-img{
+  position: absolute;
+  left: 47.8%;
+  top: 21%;
+  width: 35.3%;
+  height: auto;
+}
+
+/* ---------- iPod ---------- */
+.ipod-wrap{
+  position: absolute;
+  left: 17.2%;
+  top: 29.5%;
+  width: 66.9%;
+  height: auto;
+}
+
+.ipod-wrap img{
+  width: 100%;
+  display: block;
+  filter: drop-shadow(0 18px 26px rgba(0,0,0,0.4));
+}
+
+/* Prompt readout, positioned over the iPod's screen */
+.readout{
+  position: absolute;
+  left: 18.983%;
+  top: 41.071%;
+  width: 32.034%;
+  height: 12.912%;
+  transform: rotate(4.89deg);
+  transform-origin: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  padding: 3%;
+  cursor: pointer;
+}
+
+.readout-text{
+  font-size: 3.6cqw;
+  line-height: 1.35;
+  color: #ffffff;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.01em;
+  text-shadow: 0 1px 3px rgba(0,0,0,0.55);
+  margin-bottom: 5.9375rem;
+  margin-left: 3.25rem;
+  width: 7.8125rem;
+  transform: rotate(-9.3deg);
+}
+
+/* ---------- Shuffle button + label ---------- */
+.shuffle-btn{
+  position: absolute;
+  left: 42.6%;
+  top: 70.5%;
+  width: 16.9%;
+  height: auto;
+  border: none;
+  background: transparent;
+  padding: 0;
+  cursor: pointer;
+  -webkit-appearance: none;
+}
+
+.shuffle-btn img{
+  width: 100%;
+  display: block;
+  transition: transform 0.1s ease;
+}
+
+.shuffle-btn:active img{
+  transform: scale(0.9);
+}
+
+.shuffle-label{
+  position: absolute;
+  left: 48.2%;
+  top: 77.3%;
+  width: 26%;
+  height: auto;
+}
+</style>
+</head>
+<body>
+
+<div class="canvas">
+
+  <img class="playlist-img" src="assets/playlist_text.png" alt="Playlist">
+  <img class="prompt-img" src="assets/prompt_text.png" alt="Prompt">
+
+  <div class="ipod-wrap">
+    <img src="assets/ipod.png" alt="iPod">
+    <div class="readout" id="readout">
+      <div class="readout-text" id="promptText">Hit shuffle to get your CD's theme.</div>
+    </div>
+  </div>
+
+  <button class="shuffle-btn" id="shuffleBtn" aria-label="Shuffle">
+    <img src="assets/shuffle_button.png" alt="">
+  </button>
+  <img class="shuffle-label" src="assets/shuffle_text.png" alt="Shuffle">
+
+</div>
+
+<script>
+const prompts = [
+  "Your summer as a movie soundtrack",
+  "Your coming-of-age summer soundtrack",
+  "The soundtrack to your favourite summer",
+  "A playlist for your summer crush",
+  "The summer you fell in love",
+  "The summer you learned something new about yourself",
+  "A playlist for yourself, 2 summers ago",
+  "The hottest summer you remember",
+  "Your main character summer",
+  "The summer before everything changed",
+  "The summer everything changed",
+  "The summer you became someone new",
+  "Your first summer in a new city",
+  "A summer in a foreign country",
+  "A summer in a city you love",
+  "Your favourite summer with family and friends",
+  "The summer you discovered your favourite song",
+  "The summer you didn't want to end",
+  "A sticky, heatwave summer",
+  "A rainy summer",
+  "The summer you felt most alive"
+];
+
+const promptEl = document.getElementById('promptText');
+const readoutEl = document.getElementById('readout');
+const btn = document.getElementById('shuffleBtn');
+
+let lastIndex = -1;
+
+function pick(){
+  let i;
+  do {
+    i = Math.floor(Math.random() * prompts.length);
+  } while (i === lastIndex && prompts.length > 1);
+  lastIndex = i;
+  return prompts[i];
+}
+
+function shuffle(){
+  if (navigator.vibrate) navigator.vibrate(12);
+  btn.disabled = true;
+
+  let ticks = 0;
+  const maxTicks = 7;
+  const interval = setInterval(() => {
+    promptEl.textContent = prompts[Math.floor(Math.random() * prompts.length)];
+    ticks++;
+    if (ticks >= maxTicks){
+      clearInterval(interval);
+      promptEl.textContent = pick();
+      btn.disabled = false;
+    }
+  }, 55);
+}
+
+btn.addEventListener('click', shuffle);
+
+readoutEl.addEventListener('click', () => {
+  if (navigator.clipboard){
+    navigator.clipboard.writeText(promptEl.textContent).catch(() => {});
+  }
+});
+</script>
+
+</body>
+</html>
